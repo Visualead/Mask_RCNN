@@ -6,7 +6,6 @@ Copyright (c) 2017 Matterport, Inc.
 Licensed under the MIT License (see LICENSE for details)
 Written by Waleed Abdulla
 """
-
 import os
 import sys
 import glob
@@ -34,7 +33,6 @@ import utils
 from distutils.version import LooseVersion
 assert LooseVersion(tf.__version__) >= LooseVersion("1.3")
 assert LooseVersion(keras.__version__) >= LooseVersion('2.0.8')
-
 
 ############################################################
 #  Utility Functions
@@ -528,7 +526,9 @@ def detection_targets_graph(proposals, gt_class_ids, gt_boxes, gt_masks, config)
     positive_indices = tf.random_shuffle(positive_indices)[:positive_count]
     positive_count = tf.shape(positive_indices)[0]
     # Negative ROIs. Add enough to maintain positive:negative ratio.
-    negative_count = int((positive_count / config.ROI_POSITIVE_RATIO) - positive_count)
+    negative_count = tf.cast(tf.cast(positive_count, tf.float32) /
+                         tf.convert_to_tensor(config.ROI_POSITIVE_RATIO
+                                              , dtype=tf.float32) - tf.cast(positive_count,dtype=tf.float32), tf.int32)
     negative_indices = tf.random_shuffle(negative_indices)[:negative_count]
     # Gather selected ROIs
     positive_rois = tf.gather(proposals, positive_indices)
